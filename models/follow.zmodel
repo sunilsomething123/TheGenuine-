@@ -1,0 +1,15 @@
+
+ import "./user.zmodel"  
+
+model Follow {
+
+    id                String        @id @default(uuid())  
+    followerId  String?          
+    follower    User?            @relation(fields: [followerId], references: [id], name:"follower")  
+    followeeId  String?          
+    followee    User?            @relation(fields: [followeeId], references: [id], name:"followee")  
+
+dateCreated DateTime @default(now())
+      dateUpdated DateTime @updatedAt  @default(now())
+      @@allow("all", true)
+}

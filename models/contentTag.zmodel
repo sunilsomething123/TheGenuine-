@@ -1,0 +1,16 @@
+
+ import "./quote.zmodel"  
+ import "./tag.zmodel"  
+
+model ContentTag {
+
+    id                String        @id @default(uuid())  
+    contentId  String?          
+    content      Quote?          @relation(fields: [contentId], references: [id], name:"content")  
+    tagId          String?          
+    tag              Tag?              @relation(fields: [tagId], references: [id], name:"tag")  
+
+dateCreated DateTime @default(now())
+      dateUpdated DateTime @updatedAt  @default(now())
+      @@allow("all", true)
+}

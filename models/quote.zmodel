@@ -1,0 +1,21 @@
+
+ import "./user.zmodel"  
+ import "./contentTag.zmodel"  
+ import "./savedContent.zmodel"  
+
+model Quote {
+
+    id                String        @id @default(uuid())  
+    content      String          
+    author        String?          
+    category    String?          
+    datePosted  String?          
+    userId        String?          
+    user            User?            @relation(fields: [userId], references: [id], name:"user")  
+
+contentTagsAsContent  ContentTag[]  @relation("content")  
+    savedContentsAsContent  SavedContent[]  @relation("content")  
+      dateCreated DateTime @default(now())
+      dateUpdated DateTime @updatedAt  @default(now())
+      @@allow("all", true)
+}

@@ -1,0 +1,13 @@
+
+ import "./contentTag.zmodel"  
+
+model Tag {
+
+    id                String        @id @default(uuid())  
+    name            String          
+
+contentTags  ContentTag[]  @relation("tag")  
+      dateCreated DateTime @default(now())
+      dateUpdated DateTime @updatedAt  @default(now())
+      @@allow("all", true)
+}

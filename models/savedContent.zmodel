@@ -1,0 +1,16 @@
+
+ import "./user.zmodel"  
+ import "./quote.zmodel"  
+
+model SavedContent {
+
+    id                String        @id @default(uuid())  
+    userId        String?          
+    user            User?            @relation(fields: [userId], references: [id], name:"user")  
+    contentId  String?          
+    content      Quote?          @relation(fields: [contentId], references: [id], name:"content")  
+
+dateCreated DateTime @default(now())
+      dateUpdated DateTime @updatedAt  @default(now())
+      @@allow("all", true)
+}

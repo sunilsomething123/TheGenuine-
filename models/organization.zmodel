@@ -1,0 +1,15 @@
+import "./organizationRole.zmodel";
+
+model Organization {
+    id          String             @id @default(uuid())
+    name        String
+    pictureUrl  String?            @default('https://i.imgur.com/BgkFiid.jpeg')
+    dateCreated DateTime           @default(now())
+    dateUpdated DateTime           @updatedAt @default(now())
+
+    roles       OrganizationRole[]
+
+@@allow('all', auth().roles?[name == 'admin'])
+    @@allow('all', roles?[user == auth() && name == 'owner'])
+    @@allow('read', roles?[user == auth()])
+}
