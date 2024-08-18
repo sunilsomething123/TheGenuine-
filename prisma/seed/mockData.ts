@@ -30,7 +30,7 @@ INSERT INTO "Tag" ("id", "name") VALUES ('d6fa7f28-8f75-4118-9040-22fefcaebf2b',
 INSERT INTO "Tag" ("id", "name") VALUES ('b0cb71e8-204e-4690-8542-d330e01dfa97', 'Motivation');
 INSERT INTO "Tag" ("id", "name") VALUES ('db9fd12b-140e-4a80-8295-8a3df76f1938', 'Success');
 
-INSERT INTO "Quote" ("id", "content", "author", "category", "datePosted", "userId") VALUES ('c5e0f99a-3935-457b-b2ee-331ff66bcb24', 'Believe you can and youre halfway there.', 'Albert Schweitzer', 'Inspiration', '2025-04-24T10:36:06.241Z', '0db6bc05-d3be-4d2e-8093-25084c617ec6');
+INSERT INTO "Quote" ("id", "content", "author", "category", "datePosted", "userId") VALUES ('c5e0f99a-3935-457b-b2ee-331ff66bcb24', 'Believe you can and you&apos;re halfway there.', 'Albert Schweitzer', 'Inspiration', '2025-04-24T10:36:06.241Z', '0db6bc05-d3be-4d2e-8093-25084c617ec6');
 INSERT INTO "Quote" ("id", "content", "author", "category", "datePosted", "userId") VALUES ('338bdfa7-f42c-457b-b4a9-ce26964f8d35', 'Act as if what you do makes a difference. It does.', 'Theodore Roosevelt', 'Belief', '2024-04-23T09:10:06.439Z', '80a5ec0f-c3ac-4f79-8f5b-0d917bfb537c');
 INSERT INTO "Quote" ("id", "content", "author", "category", "datePosted", "userId") VALUES ('5958624a-7cc0-4fe0-b4fe-26c2b74070eb', 'The only limit to our realization of tomorrow is our doubts of today.', 'Franklin D. Roosevelt', 'Motivation', '2024-12-28T02:51:02.722Z', '1b33ff58-b6a1-43d8-864f-75c9a063a21a');
 INSERT INTO "Quote" ("id", "content", "author", "category", "datePosted", "userId") VALUES ('1e5dce4b-49fc-4022-84f5-e80ffa8c4f39', 'Believe you can and youre halfway there.', 'Franklin D. Roosevelt', 'Belief', '2025-01-06T14:03:35.531Z', '21a857f1-ba5f-4435-bcf6-f910ec07c0dc');
