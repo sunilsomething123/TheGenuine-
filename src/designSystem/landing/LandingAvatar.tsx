@@ -1,5 +1,6 @@
 import clsx from 'clsx'
 import { ImgHTMLAttributes } from 'react'
+import Image from 'next/image';
 
 interface LandingAvatarProps extends ImgHTMLAttributes<HTMLImageElement> {
   size?: 'small' | 'medium' | 'large'
@@ -17,7 +18,7 @@ export const LandingAvatar = ({
   ...remainingProps
 }: LandingAvatarProps) => {
   return (
-    <img
+    <Image 
       src={src}
       width={width}
       height={height}
