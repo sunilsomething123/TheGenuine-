@@ -13,6 +13,7 @@ import { useSnackbar } from 'notistack'
 import dayjs from 'dayjs'
 import { Api } from '@/core/trpc'
 import { PageLayout } from '@/designSystem/layouts/Page.layout'
+import Image from 'next/image';
 
 export default function GetWindOfPage() {
   const router = useRouter()
@@ -106,7 +107,7 @@ export default function GetWindOfPage() {
             <Card
               key={image.id}
               style={{ minWidth: 300, marginRight: 16, position: 'relative' }}
-              cover={<img alt={image.title} src={image.url} />}
+              cover={<Image alt={image.title} src={image.url} />}
             >
               <div
                 style={{
