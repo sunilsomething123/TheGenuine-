@@ -24,6 +24,7 @@ import { useSnackbar } from 'notistack'
 import dayjs from 'dayjs'
 import { Api } from '@/core/trpc'
 import { PageLayout } from '@/designSystem/layouts/Page.layout'
+import Image from 'next/image';
 
 export default function PostContentPage() {
   const router = useRouter()
@@ -151,7 +152,7 @@ export default function PostContentPage() {
         footer={null}
         onCancel={handleCancel}
       >
-        <img alt="example" style={{ width: '100%' }} src={previewImage} />
+        <Image alt="example" style={{ width: '100%' }} src={previewImage} />
       </Modal>
     </PageLayout>
   )
