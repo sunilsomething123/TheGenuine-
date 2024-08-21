@@ -42,7 +42,7 @@ export default function HomePage() {
           marginBottom: '2rem',
         }}
       >
-        <Image
+        <img
           src="https://img.freepik.com/free-photo/illustration-anime-character-rain_23-2151394670.jpg"
           alt="Happiness is not a chance, its a choice"
           style={{ width: '100%', height: 'auto', opacity: 0.5 }}
