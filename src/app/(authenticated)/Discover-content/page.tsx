@@ -135,7 +135,6 @@ export default function GetWindOfPage() {
                   src={video.url}
                   autoPlay
                   loop
-                  muted
                   style={{ width: '100%' }}
                 />
               }
