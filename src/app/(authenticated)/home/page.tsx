@@ -10,7 +10,6 @@ import { useSnackbar } from 'notistack'
 import dayjs from 'dayjs'
 import { Api } from '@/core/trpc'
 import { PageLayout } from '@/designSystem/layouts/Page.layout'
-import Image from 'next/image'
 
 export default function HomePage() {
   const router = useRouter()
@@ -43,9 +42,9 @@ export default function HomePage() {
         }}
       >
         <img
-          src="https://img.freepik.com/free-photo/illustration-anime-character-rain_23-2151394670.jpg"
-          alt="Happiness is not a chance, its a choice"
-          style={{ width: '100%', height: 'auto', opacity: 0.5 }}
+  src="https://img.freepik.com/free-photo/illustration-anime-character-rain_23-2151394670.jpg"
+  alt="Happiness is not a chance, it's a choice"
+  style="width: 100%; height: auto; opacity: 0.5;"
         />
         <Title
           level={1}
