@@ -1,7 +1,7 @@
 'use client'
 
 import { Prisma } from '@prisma/client'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Typography, Input, Select, Card, Row, Col, Spin } from 'antd'
 import { SearchOutlined } from '@ant-design/icons'
 const { Title, Text, Paragraph } = Typography
@@ -13,7 +13,7 @@ import { useSnackbar } from 'notistack'
 import dayjs from 'dayjs'
 import { Api } from '@/core/trpc'
 import { PageLayout } from '@/designSystem/layouts/Page.layout'
-import Image from 'next/image';
+import Image from 'next/image'
 
 export default function GetWindOfPage() {
   const router = useRouter()
@@ -24,22 +24,20 @@ export default function GetWindOfPage() {
   const [searchTerm, setSearchTerm] = useState<string>('')
   const [category, setCategory] = useState<string | undefined>(undefined)
   const [author, setAuthor] = useState<string | undefined>(undefined)
+  const [showDescription, setShowDescription] = useState<{ [key: string]: boolean }>({})
 
-  const { data: quotes, isLoading: quotesLoading } =
-    Api.quote.findMany.useQuery({
-      where: {
-        AND: [
-          { content: { contains: searchTerm } },
-          category ? { category } : {},
-          author ? { author } : {},
-        ],
-      },
-    })
+  const { data: quotes, isLoading: quotesLoading } = Api.quote.findMany.useQuery({
+    where: {
+      AND: [
+        { content: { contains: searchTerm } },
+        category ? { category } : {},
+        author ? { author } : {},
+      ],
+    },
+  })
 
-  const { data: images, isLoading: imagesLoading } =
-    Api.image.findMany.useQuery({})
-  const { data: videos, isLoading: videosLoading } =
-    Api.video.findMany.useQuery({})
+  const { data: images, isLoading: imagesLoading } = Api.image.findMany.useQuery({})
+  const { data: videos, isLoading: videosLoading } = Api.video.findMany.useQuery({})
 
   const handleSearch = (value: string) => {
     setSearchTerm(value)
@@ -53,12 +51,17 @@ export default function GetWindOfPage() {
     setAuthor(value)
   }
 
+  const toggleDescription = (id: string) => {
+    setShowDescription((prevState) => ({
+      ...prevState,
+      [id]: !prevState[id],
+    }))
+  }
+
   return (
     <PageLayout layout="narrow">
       <Title level={2}>Inspirational Quotes</Title>
-      <Paragraph>
-        Browse through various inspirational quotes, images, and videos.
-      </Paragraph>
+      <Paragraph>Browse through various inspirational quotes, images, and videos.</Paragraph>
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={8}>
@@ -66,7 +69,7 @@ export default function GetWindOfPage() {
             placeholder="Search quotes"
             prefix={<SearchOutlined />}
             value={searchTerm}
-            onChange={e => handleSearch(e.target.value)}
+            onChange={(e) => handleSearch(e.target.value)}
           />
         </Col>
         <Col span={8}>
@@ -85,7 +88,7 @@ export default function GetWindOfPage() {
           <Input
             placeholder="Filter by author"
             value={author}
-            onChange={e => handleAuthorChange(e.target.value)}
+            onChange={(e) => handleAuthorChange(e.target.value)}
           />
         </Col>
       </Row>
@@ -94,20 +97,18 @@ export default function GetWindOfPage() {
         <Spin size="large" />
       ) : (
         <div style={{ display: 'flex', overflowX: 'scroll' }}>
-          {quotes?.map(quote => (
+          {quotes?.map((quote) => (
             <Card key={quote.id} style={{ minWidth: 300, marginRight: 16 }}>
               <Text>{quote.content}</Text>
               <Paragraph>- {quote.author}</Paragraph>
-              <Text type="secondary">
-                {dayjs(quote.datePosted).format('MMMM D, YYYY')}
-              </Text>
+              <Text type="secondary">{dayjs(quote.datePosted).format('MMMM D, YYYY')}</Text>
             </Card>
           ))}
-          {images?.map(image => (
+          {images?.map((image) => (
             <Card
               key={image.id}
               style={{ minWidth: 300, marginRight: 16, position: 'relative' }}
-              cover={<Image alt={image.title} src={image.url} />}
+              cover={<Image alt={image.title} src={image.url} style={{ width: '100%' }} />}
             >
               <div
                 style={{
@@ -119,17 +120,63 @@ export default function GetWindOfPage() {
                   padding: 8,
                 }}
               >
-                <Title level={4} style={{ color: 'white' }}>
+                <Title
+                  level={4}
+                  style={{
+                    color: 'white',
+                    textShadow: '2px 2px 4px rgba(0, 0, 0, 0.6)',
+                    marginBottom: 0,
+                  }}
+                >
                   {image.title}
                 </Title>
-                <Paragraph>{image.description}</Paragraph>
+                <div
+                  style={{
+                    background: 'linear-gradient(transparent, rgba(0, 0, 0, 0.7))',
+                    position: 'absolute',
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    height: '50px',
+                    zIndex: 1,
+                  }}
+                />
+                <Paragraph
+                  style={{
+                    color: 'white',
+                    marginTop: 20,
+                    display: showDescription[image.id] ? 'block' : 'none',
+                    zIndex: 2,
+                    position: 'relative',
+                  }}
+                >
+                  {image.description}
+                </Paragraph>
+                <a
+                  style={{
+                    color: 'white',
+                    marginTop: 10,
+                    cursor: 'pointer',
+                    zIndex: 2,
+                    position: 'relative',
+                    display: 'inline-block',
+                  }}
+                  onClick={() => toggleDescription(image.id)}
+                >
+                  {showDescription[image.id] ? 'Read Less' : 'Read More'}
+                </a>
               </div>
             </Card>
           ))}
-          {videos?.map(video => (
+          {videos?.map((video) => (
             <Card
               key={video.id}
-              style={{ minWidth: 300, marginRight: 16, position: 'relative' }}
+              style={{
+                minWidth: 300,
+                marginRight: 16,
+                position: 'relative',
+                overflow: 'hidden',
+              }}
               cover={
                 <video
                   src={video.url}
@@ -143,16 +190,58 @@ export default function GetWindOfPage() {
                 style={{
                   position: 'absolute',
                   bottom: 0,
-                  background: 'rgba(0, 0, 0, 0.5)',
-                  width: '100%',
-                  color: 'white',
-                  padding: 8,
+                  left: 0,
+                  right: 0,
+                  background: 'rgba(0, 0, 0, 0.3)',
+                  padding: '10px 20px',
+                  textAlign: 'center',
                 }}
               >
-                <Title level={4} style={{ color: 'white' }}>
+                <Title
+                  level={2}
+                  style={{
+                    color: 'white',
+                    textShadow: '2px 2px 4px rgba(0, 0, 0, 0.6)',
+                    marginBottom: 0,
+                  }}
+                >
                   {video.title}
                 </Title>
-                <Paragraph>{video.description}</Paragraph>
+                <div
+                  style={{
+                    background: 'linear-gradient(transparent, rgba(0, 0, 0, 0.7))',
+                    position: 'absolute',
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    height: '50px',
+                    zIndex: 1,
+                  }}
+                />
+                <Paragraph
+                  style={{
+                    color: 'white',
+                    marginTop: 20,
+                    display: showDescription[video.id] ? 'block' : 'none',
+                    zIndex: 2,
+                    position: 'relative',
+                  }}
+                >
+                  {video.description}
+                </Paragraph>
+                <a
+                  style={{
+                    color: 'white',
+                    marginTop: 10,
+                    cursor: 'pointer',
+                    zIndex: 2,
+                    position: 'relative',
+                    display: 'inline-block',
+                  }}
+                  onClick={() => toggleDescription(video.id)}
+                >
+                  {showDescription[video.id] ? 'Read Less' : 'Read More'}
+                </a>
               </div>
             </Card>
           ))}
@@ -160,4 +249,4 @@ export default function GetWindOfPage() {
       )}
     </PageLayout>
   )
-}
+    }
