@@ -1,43 +1,85 @@
 'use client'
 
-import { useState } from 'react'
-import { Typography, Calendar, Card, Row, Col, Spin } from 'antd'
-import {
-  LikeOutlined,
-  FileTextOutlined,
-  LineChartOutlined,
-} from '@ant-design/icons'
-const { Title, Text, Paragraph } = Typography
-import { useUserContext } from '@/core/context'
-import { useRouter, useParams } from 'next/navigation'
-import { useUploadPublic } from '@/core/hooks/upload'
-import { useSnackbar } from 'notistack'
-import dayjs from 'dayjs'
-import { Api } from '@/core/trpc'
-import { PageLayout } from '@/designSystem/layouts/Page.layout'
+import { useState, useEffect } from 'react';
+import { Typography, Calendar, Card, Row, Col, Spin } from 'antd';
+import { LikeOutlined, FileTextOutlined, LineChartOutlined } from '@ant-design/icons';
+import dayjs from 'dayjs';
+import Sentiment from 'sentiment';
+import { Line } from '@ant-design/charts';
+import { useUserContext } from '@/core/context';
+import { useRouter, useParams } from 'next/navigation';
+import { useSnackbar } from 'notistack';
+import { Api } from '@/core/trpc';
+import { PageLayout } from '@/designSystem/layouts/Page.layout';
 
+const { Title, Paragraph, Text } = Typography;
+
+// MoodGraph Component
+function MoodGraph({ notes, notesLoading }) {
+  const [graphData, setGraphData] = useState([]);
+
+  const sentimentAnalyzer = new Sentiment();
+
+  useEffect(() => {
+    if (!notesLoading && notes) {
+      const processedData = notes.map(note => {
+        const sentimentScore = sentimentAnalyzer.analyze(note.content).score;
+        return {
+          date: dayjs(note.createdAt).format('YYYY-MM-DD'),
+          score: sentimentScore,
+        };
+      });
+
+      setGraphData(processedData);
+    }
+  }, [notes, notesLoading]);
+
+  const config = {
+    data: graphData,
+    xField: 'date',
+    yField: 'score',
+    smooth: true,
+    height: 400,
+    color: '#40a9ff',
+    point: {
+      size: 5,
+      shape: 'diamond',
+    },
+    lineStyle: {
+      lineWidth: 2,
+    },
+  };
+
+  return (
+    <div>
+      {notesLoading ? <Spin /> : <Line {...config} />}
+    </div>
+  );
+}
+
+// PowerhousePage Component
 export default function PowerhousePage() {
-  const router = useRouter()
-  const params = useParams<any>()
-  const { user } = useUserContext()
-  const { enqueueSnackbar } = useSnackbar()
+  const router = useRouter();
+  const params = useParams();
+  const { user } = useUserContext();
+  const { enqueueSnackbar } = useSnackbar();
 
-  const userId = user?.id
+  const userId = user?.id;
 
   const { data: notes, isLoading: notesLoading } = Api.note.findMany.useQuery({
     where: { userId },
-  })
+  });
   const { data: savedContents, isLoading: savedContentsLoading } =
     Api.savedContent.findMany.useQuery({
       where: { userId },
       include: { content: true },
-    })
+    });
 
-  const [selectedDate, setSelectedDate] = useState(dayjs())
+  const [selectedDate, setSelectedDate] = useState(dayjs());
 
   const onDateSelect = date => {
-    setSelectedDate(date)
-  }
+    setSelectedDate(date);
+  };
 
   return (
     <PageLayout layout="narrow">
@@ -83,19 +125,10 @@ export default function PowerhousePage() {
             bordered={false}
             extra={<LineChartOutlined />}
           >
-            {notesLoading ? (
-              <Spin />
-            ) : (
-              <div>
-                {/* Placeholder for the graph */}
-                <Text>
-                  Graph showing days when you were high and low will be here.
-                </Text>
-              </div>
-            )}
+            <MoodGraph notes={notes} notesLoading={notesLoading} />
           </Card>
         </Col>
       </Row>
     </PageLayout>
-  )
+  );
 }
