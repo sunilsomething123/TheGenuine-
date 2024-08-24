@@ -21,7 +21,7 @@ export const Logo: React.FC<Props> = ({
   return (
     <Flex align="center" gap={10}>
       <img
-        src="https://marblism-dashboard-api--production-public.s3.us-west-1.amazonaws.com/ICH6j8-thegenuinene-02AM"
+        src="https://i.postimg.cc/FRFW0bXy/Picsart-24-08-24-12-02-35-393.png"
         height={height}
         style={{
           borderRadius: '5px',
