@@ -1,19 +1,18 @@
 'use client'
 
-import { Prisma } from '@prisma/client'
 import { useState } from 'react'
 import { Typography, Input, Select, Card, Row, Col, Spin } from 'antd'
 import { SearchOutlined } from '@ant-design/icons'
-const { Title, Text, Paragraph } = Typography
-const { Option } = Select
 import { useUserContext } from '@/core/context'
 import { useRouter, useParams } from 'next/navigation'
-import { useUploadPublic } from '@/core/hooks/upload'
 import { useSnackbar } from 'notistack'
 import dayjs from 'dayjs'
 import { Api } from '@/core/trpc'
 import { PageLayout } from '@/designSystem/layouts/Page.layout'
 import Image from 'next/image'
+
+const { Title, Text, Paragraph } = Typography
+const { Option } = Select
 
 export default function GetWindOfPage() {
   const router = useRouter()
@@ -126,6 +125,7 @@ export default function GetWindOfPage() {
                     color: 'white',
                     textShadow: '2px 2px 4px rgba(0, 0, 0, 0.6)',
                     marginBottom: 0,
+                    textAlign: 'left',
                   }}
                 >
                   {image.title}
@@ -175,78 +175,80 @@ export default function GetWindOfPage() {
                 minWidth: 300,
                 marginRight: 16,
                 position: 'relative',
-                overflow: 'hidden',
               }}
-              cover={
+            >
+              <div
+                style={{
+                  position: 'relative',
+                  paddingBottom: '125%', // 4:5 aspect ratio
+                  height: 0,
+                }}
+              >
                 <video
                   src={video.url}
                   autoPlay
                   loop
-                  style={{ width: '100%' }}
-                />
-              }
-            >
-              <div
-                style={{
-                  position: 'absolute',
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  background: 'rgba(0, 0, 0, 0.3)',
-                  padding: '10px 20px',
-                  textAlign: 'center',
-                }}
-              >
-                <Title
-                  level={2}
                   style={{
-                    color: 'white',
-                    textShadow: '2px 2px 4px rgba(0, 0, 0, 0.6)',
-                    marginBottom: 0,
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
                   }}
-                >
-                  {video.title}
-                </Title>
+                />
                 <div
                   style={{
-                    background: 'linear-gradient(transparent, rgba(0, 0, 0, 0.7))',
                     position: 'absolute',
                     bottom: 0,
                     left: 0,
                     right: 0,
-                    height: '50px',
+                    background: 'linear-gradient(transparent, rgba(0, 0, 0, 0.7))',
+                    padding: '10px 20px',
                     zIndex: 1,
                   }}
-                />
-                <Paragraph
-                  style={{
-                    color: 'white',
-                    marginTop: 20,
-                    display: showDescription[video.id] ? 'block' : 'none',
-                    zIndex: 2,
-                    position: 'relative',
-                  }}
                 >
-                  {video.description}
-                </Paragraph>
-                <a
-                  style={{
-                    color: 'white',
-                    marginTop: 10,
-                    cursor: 'pointer',
-                    zIndex: 2,
-                    position: 'relative',
-                    display: 'inline-block',
-                  }}
-                  onClick={() => toggleDescription(video.id)}
-                >
-                  {showDescription[video.id] ? 'Read Less' : 'Read More'}
-                </a>
+                  <Title
+                    level={2}
+                    style={{
+                      color: 'white',
+                      textShadow: '2px 2px 4px rgba(0, 0, 0, 0.6)',
+                      marginBottom: 0,
+                      textAlign: 'left',
+                    }}
+                  >
+                    {video.title}
+                  </Title>
+                </div>
               </div>
+              <Paragraph
+                style={{
+                  color: 'white',
+                  marginTop: 20,
+                  display: showDescription[video.id] ? 'block' : 'none',
+                  zIndex: 2,
+                  position: 'relative',
+                }}
+              >
+                {video.description}
+              </Paragraph>
+              <a
+                style={{
+                  color: 'white',
+                  marginTop: 10,
+                  cursor: 'pointer',
+                  zIndex: 2,
+                  position: 'relative',
+                  display: 'inline-block',
+                }}
+                onClick={() => toggleDescription(video.id)}
+              >
+                {showDescription[video.id] ? 'Read Less' : 'Read More'}
+              </a>
             </Card>
           ))}
         </div>
       )}
     </PageLayout>
   )
-    }
+                  }
