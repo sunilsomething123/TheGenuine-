@@ -6,7 +6,16 @@
 /** @type {import("next").NextConfig} */
 const config = {
   reactStrictMode: false,
-  
-}
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'img.freepik.com',
+        port: '',
+        pathname: '/**', // Allows all images from any path on img.freepik.com
+      },
+    ],
+  },
+};
 
-export default config
+export default config;
