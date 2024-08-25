@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react';
-import { Typography, Calendar, Card, Row, Col, Spin } from 'antd';
+import { Typography, Calendar, Card, Row, Col, Spin, Modal, Input, Button } from 'antd';
 import { LikeOutlined, FileTextOutlined, LineChartOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import Sentiment from 'sentiment';
@@ -13,6 +13,7 @@ import { Api } from '@/core/trpc';
 import { PageLayout } from '@/designSystem/layouts/Page.layout';
 
 const { Title, Paragraph, Text } = Typography;
+const { TextArea } = Input;
 
 // MoodGraph Component
 function MoodGraph({ notes, notesLoading }) {
@@ -76,9 +77,36 @@ export default function PowerhousePage() {
     });
 
   const [selectedDate, setSelectedDate] = useState(dayjs());
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [noteContent, setNoteContent] = useState('');
 
   const onDateSelect = date => {
     setSelectedDate(date);
+    setIsModalVisible(true); // Show modal when a date is selected
+  };
+
+  const handleOk = async () => {
+    // Save the note here using your API or state management
+    try {
+      await Api.note.create({
+        data: {
+          content: noteContent,
+          createdAt: selectedDate.toDate(),
+          userId: userId,
+        },
+      });
+      enqueueSnackbar('Note saved successfully!', { variant: 'success' });
+    } catch (error) {
+      enqueueSnackbar('Failed to save note.', { variant: 'error' });
+    }
+
+    setIsModalVisible(false);
+    setNoteContent('');
+  };
+
+  const handleCancel = () => {
+    setIsModalVisible(false);
+    setNoteContent('');
   };
 
   return (
@@ -129,6 +157,21 @@ export default function PowerhousePage() {
           </Card>
         </Col>
       </Row>
+
+      {/* Modal for Writing Notes */}
+      <Modal
+        title={`Write a Note for ${selectedDate.format('YYYY-MM-DD')}`}
+        visible={isModalVisible}
+        onOk={handleOk}
+        onCancel={handleCancel}
+      >
+        <TextArea
+          rows={4}
+          value={noteContent}
+          onChange={e => setNoteContent(e.target.value)}
+          placeholder="Write your experience here..."
+        />
+      </Modal>
     </PageLayout>
   );
 }
