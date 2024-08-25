@@ -1,16 +1,16 @@
 'use client'
 
-import { useState, useEffect } from 'react';
-import { Typography, Calendar, Card, Row, Col, Spin, Modal, Input, Button } from 'antd';
-import { LikeOutlined, FileTextOutlined, LineChartOutlined } from '@ant-design/icons';
-import dayjs from 'dayjs';
-import Sentiment from 'sentiment';
-import { Line } from '@ant-design/charts';
 import { useUserContext } from '@/core/context';
-import { useRouter, useParams } from 'next/navigation';
-import { useSnackbar } from 'notistack';
 import { Api } from '@/core/trpc';
 import { PageLayout } from '@/designSystem/layouts/Page.layout';
+import { Line } from '@ant-design/charts';
+import { FileTextOutlined, LikeOutlined, LineChartOutlined } from '@ant-design/icons';
+import { Calendar, Card, Col, Input, Modal, Row, Spin, Typography } from 'antd';
+import dayjs from 'dayjs';
+import { useParams, useRouter } from 'next/navigation';
+import { useSnackbar } from 'notistack';
+import { useEffect, useState } from 'react';
+import Sentiment from 'sentiment';
 
 const { Title, Paragraph, Text } = Typography;
 const { TextArea } = Input;
@@ -86,28 +86,29 @@ export default function PowerhousePage() {
   };
 
   const handleOk = async () => {
-    // Save the note here using your API or state management
-    try {
-      await Api.note.create({
-        data: {
-          content: noteContent,
-          createdAt: selectedDate.toDate(),
-          userId: userId,
-        },
-      });
-      enqueueSnackbar('Note saved successfully!', { variant: 'success' });
-    } catch (error) {
-      enqueueSnackbar('Failed to save note.', { variant: 'error' });
-    }
+      // Save the note here using your API or state management
+        try {
+            await Api.note.create.mutateAsync({
+                  data: {
+                          content: noteContent,
+                                  createdAt: selectedDate.toDate(),
+                                          userId: userId,
+                                                },
+                                                    });
+                                                        enqueueSnackbar('Note saved successfully!', { variant: 'success' });
+                                                          } catch (error) {
+                                                              console.error('Failed to save note:', error);
+                                                                  enqueueSnackbar('Failed to save note.', { variant: 'error' });
+                                                                    }
 
-    setIsModalVisible(false);
-    setNoteContent('');
-  };
+                                                                      setIsModalVisible(false);
+                                                                        setNoteContent('');
+                                                                        };
 
-  const handleCancel = () => {
-    setIsModalVisible(false);
-    setNoteContent('');
-  };
+                                                                        const handleCancel = () => {
+                                                                          setIsModalVisible(false);
+                                                                            setNoteContent('');
+                                                                            }; 
 
   return (
     <PageLayout layout="narrow">
