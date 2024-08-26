@@ -119,6 +119,35 @@ export default function PowerhousePage() {
                                                                                                                                       }
                                                                                                                                       };
 
+  const handleCancel = () => {
+        setIsModalVisible(false);
+            setNoteContent('');
+              };
+
+                return (
+                    <div>
+                          {/* Your existing code for displaying the page and handling date selection */}
+
+                                <Modal
+                                        title="Add Note"
+                                                visible={isModalVisible}
+                                                        onOk={handleOk}
+                                                                onCancel={handleCancel}
+                                                                      >
+                                                                              <TextArea
+                                                                                        rows={4}
+                                                                                                  value={noteContent}
+                                                                                                            onChange={(e) => setNoteContent(e.target.value)}
+                                                                                                                    />
+                                                                                                                          </Modal>
+                                                                                                                              </div>
+                                                                                                                                );
+                                                                                                                                };
+
+                                                                                                                                export default PowerhousePage;
+  }                                                                                                                                    
+
+
   return (
     <PageLayout layout="narrow">
       <Title level={2}>Powerhouse</Title>
