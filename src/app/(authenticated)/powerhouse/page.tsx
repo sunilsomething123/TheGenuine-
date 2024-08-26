@@ -142,7 +142,6 @@ export default function PowerhousePage() {
                                                                                                                           </Modal>
                                                                                                                               </div>
                                                                                                                                 );
-                                                                                                                                };
 
                                                                                                                                 export default PowerhousePage;
   }                                                                                                                                    
