@@ -86,29 +86,38 @@ export default function PowerhousePage() {
   };
 
   const handleOk = async () => {
-      // Save the note here using your API or state management
-        try {
-            await Api.note.create.mutateAsync({
-                  data: {
-                          content: noteContent,
-                                  createdAt: selectedDate.toDate(),
-                                          userId: userId,
-                                                },
-                                                    });
-                                                        enqueueSnackbar('Note saved successfully!', { variant: 'success' });
-                                                          } catch (error) {
-                                                              console.error('Failed to save note:', error);
-                                                                  enqueueSnackbar('Failed to save note.', { variant: 'error' });
-                                                                    }
+      try {
+          // Attempt to save the note using the API
+              const response = await Api.note.create.mutateAsync({
+                    data: {
+                            content: noteContent,
+                                    createdAt: selectedDate.toDate(),
+                                            userId: userId,
+                                                  },
+                                                      });
 
-                                                                      setIsModalVisible(false);
-                                                                        setNoteContent('');
-                                                                        };
+                                                          // Check if the response is valid and the note was saved successfully
+                                                              if (response?.id) {
+                                                                    enqueueSnackbar('Note saved successfully!', { variant: 'success' });
 
-                                                                        const handleCancel = () => {
-                                                                          setIsModalVisible(false);
-                                                                            setNoteContent('');
-                                                                            }; 
+                                                                          // Optionally, you can log or handle the response ID
+                                                                                console.log('Note saved successfully with ID:', response.id);
+                                                                                    } else {
+                                                                                          // Handle the scenario where the API call didn't return the expected response
+                                                                                                enqueueSnackbar('Failed to save note. Please try again later.', { variant: 'error' });
+                                                                                                    }
+                                                                                                      } catch (error) {
+                                                                                                          // Log the error for debugging purposes
+                                                                                                              console.error('Failed to save note:', error);
+
+                                                                                                                  // Notify the user of the failure
+                                                                                                                      enqueueSnackbar('Failed to save note. Please check your connection and try again.', { variant: 'error' });
+                                                                                                                        } finally {
+                                                                                                                            // Reset the modal visibility and clear the note content input
+                                                                                                                                setIsModalVisible(false);
+                                                                                                                                    setNoteContent('');
+                                                                                                                                      }
+                                                                                                                                      };
 
   return (
     <PageLayout layout="narrow">
