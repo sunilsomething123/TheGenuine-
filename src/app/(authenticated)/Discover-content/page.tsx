@@ -1,29 +1,29 @@
 'use client'
 
-import { useState } from 'react'
-import { Typography, Input, Select, Card, Row, Col, Spin } from 'antd'
-import { SearchOutlined } from '@ant-design/icons'
-import { useUserContext } from '@/core/context'
-import { useRouter, useParams } from 'next/navigation'
-import { useSnackbar } from 'notistack'
-import dayjs from 'dayjs'
-import { Api } from '@/core/trpc'
-import { PageLayout } from '@/designSystem/layouts/Page.layout'
-import Image from 'next/image'
+import { useState } from 'react';
+import { Typography, Input, Select, Card, Row, Col, Spin, Button } from 'antd';
+import { SearchOutlined } from '@ant-design/icons';
+import { useUserContext } from '@/core/context';
+import { useRouter, useParams } from 'next/navigation';
+import { useSnackbar } from 'notistack';
+import dayjs from 'dayjs';
+import { Api } from '@/core/trpc';
+import { PageLayout } from '@/designSystem/layouts/Page.layout';
+import Image from 'next/image';
 
-const { Title, Text, Paragraph } = Typography
-const { Option } = Select
+const { Title, Text, Paragraph } = Typography;
+const { Option } = Select;
 
 export default function GetWindOfPage() {
-  const router = useRouter()
-  const params = useParams<any>()
-  const { user } = useUserContext()
-  const { enqueueSnackbar } = useSnackbar()
+  const router = useRouter();
+  const params = useParams<any>();
+  const { user } = useUserContext();
+  const { enqueueSnackbar } = useSnackbar();
 
-  const [searchTerm, setSearchTerm] = useState<string>('')
-  const [category, setCategory] = useState<string | undefined>(undefined)
-  const [author, setAuthor] = useState<string | undefined>(undefined)
-  const [showDescription, setShowDescription] = useState<{ [key: string]: boolean }>({})
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [category, setCategory] = useState<string | undefined>(undefined);
+  const [author, setAuthor] = useState<string | undefined>(undefined);
+  const [showDescription, setShowDescription] = useState<{ [key: string]: boolean }>({});
 
   const { data: quotes, isLoading: quotesLoading } = Api.quote.findMany.useQuery({
     where: {
@@ -33,29 +33,44 @@ export default function GetWindOfPage() {
         author ? { author } : {},
       ],
     },
-  })
+  });
 
-  const { data: images, isLoading: imagesLoading } = Api.image.findMany.useQuery({})
-  const { data: videos, isLoading: videosLoading } = Api.video.findMany.useQuery({})
+  const { data: images, isLoading: imagesLoading } = Api.image.findMany.useQuery({});
+  const { data: videos, isLoading: videosLoading } = Api.video.findMany.useQuery({});
 
   const handleSearch = (value: string) => {
-    setSearchTerm(value)
-  }
+    setSearchTerm(value);
+  };
 
   const handleCategoryChange = (value: string) => {
-    setCategory(value)
-  }
+    setCategory(value);
+  };
 
   const handleAuthorChange = (value: string) => {
-    setAuthor(value)
-  }
+    setAuthor(value);
+  };
 
   const toggleDescription = (id: string) => {
     setShowDescription((prevState) => ({
       ...prevState,
       [id]: !prevState[id],
-    }))
-  }
+    }));
+  };
+
+  const saveContent = async (contentType: string, contentId: string) => {
+    try {
+      const response = await Api.savedContent.create.mutateAsync({
+        data: {
+          contentType,
+          contentId,
+          userId: user?.id,
+        },
+      });
+      enqueueSnackbar('Content saved successfully!', { variant: 'success' });
+    } catch (error) {
+      enqueueSnackbar('Failed to save content.', { variant: 'error' });
+    }
+  };
 
   return (
     <PageLayout layout="narrow">
@@ -101,6 +116,7 @@ export default function GetWindOfPage() {
               <Text>{quote.content}</Text>
               <Paragraph>- {quote.author}</Paragraph>
               <Text type="secondary">{dayjs(quote.datePosted).format('MMMM D, YYYY')}</Text>
+              <Button onClick={() => saveContent('quote', quote.id)}>Save</Button>
             </Card>
           ))}
           {images?.map((image) => (
@@ -166,6 +182,7 @@ export default function GetWindOfPage() {
                   {showDescription[image.id] ? 'Read Less' : 'Read More'}
                 </a>
               </div>
+              <Button onClick={() => saveContent('image', image.id)}>Save</Button>
             </Card>
           ))}
           {videos?.map((video) => (
@@ -245,10 +262,11 @@ export default function GetWindOfPage() {
               >
                 {showDescription[video.id] ? 'Read Less' : 'Read More'}
               </a>
+              <Button onClick={() => saveContent('video', video.id)}>Save</Button>
             </Card>
           ))}
         </div>
       )}
     </PageLayout>
-  )
-                  }
+  );
+}
