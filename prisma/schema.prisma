@@ -180,29 +180,3 @@ model Note {
   dateCreated DateTime @default(now())
   dateUpdated DateTime @default(now()) @updatedAt()
 }
-
-/// @@allow('all', true)
-model SavedContent {
-  id        String   @id @default(uuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  contentId String?
-  content   Content? @relation(fields: [contentId], references: [id])
-
-  createdAt DateTime @default(now())
-}
-
-/// @@allow('all', true)
-model Content {
-  id       String   @id @default(uuid())
-  type     ContentType
-  quote    Quote?   @relation(fields: [id], references: [contentId])
-  image    Image?   @relation(fields: [id], references: [contentId])
-  video    Video?   @relation(fields: [id], references: [contentId])
-}
-
-enum ContentType {
-  QUOTE
-  IMAGE
-  VIDEO
-}
