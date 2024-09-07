@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import { useUserContext } from '@/core/context';
 import { Api } from '@/core/trpc';
@@ -23,13 +23,15 @@ const MoodGraph = ({ notes, notesLoading }) => {
   useEffect(() => {
     if (!notesLoading && notes) {
       const processedData = notes.map(note => {
+        // Sentiment analysis of the note content
         const sentimentScore = sentimentAnalyzer.analyze(note.content).score;
         return {
           date: dayjs(note.createdAt).format('YYYY-MM-DD'),
-          score: sentimentScore,
+          score: sentimentScore,  // Mood classification
         };
       });
 
+      // Set graph data for visualization
       setGraphData(processedData);
     }
   }, [notes, notesLoading]);
@@ -85,10 +87,12 @@ export default function PowerhousePage() {
   const { enqueueSnackbar } = useSnackbar();
   const userId = user?.id;
 
+  // Fetch notes for the mood graph
   const { data: notes, isLoading: notesLoading } = Api.note.findMany.useQuery({
     where: { userId },
   });
 
+  // Fetch saved content for display
   const { data: savedContents, isLoading: savedContentsLoading } = Api.savedContent.findMany.useQuery({
     where: { userId },
     include: { content: true },
@@ -138,11 +142,15 @@ export default function PowerhousePage() {
   return (
     <PageLayout layout="narrow">
       <Title level={1}>Powerhouse</Title>
+      
+      {/* Mood Graph Rendering */}
       <Row gutter={16}>
         <Col span={24}>
           <MoodGraph notes={notes} notesLoading={notesLoading} />
         </Col>
       </Row>
+
+      {/* Note Input and Calendar */}
       <Card>
         <Calendar onSelect={onDateSelect} />
         <Modal
@@ -159,6 +167,8 @@ export default function PowerhousePage() {
           />
         </Modal>
       </Card>
+
+      {/* Display Saved Content */}
       <Row gutter={16}>
         <Col span={24}>
           {savedContents && savedContents.map(content => (
@@ -172,4 +182,4 @@ export default function PowerhousePage() {
       </Row>
     </PageLayout>
   );
-}
+  }
