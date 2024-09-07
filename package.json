@@ -57,6 +57,7 @@
     "nodemailer": "^6.9.14",
     "notistack": "^3.0.1",
     "openai": "^4.54.4",
+    "package.json": "^2.0.1",
     "postcss": "^8.4.39",
     "posthog-js": "^1.154.2",
     "prisma": "5.15.1",
