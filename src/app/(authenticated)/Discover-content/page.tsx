@@ -1,70 +1,52 @@
-'use client'
+'use client';
 
-import { useState } from 'react';
-import { Typography, Input, Select, Card, Row, Col, Spin, Button } from 'antd';
-import { SearchOutlined } from '@ant-design/icons';
-import { useUserContext } from '@/core/context';
-import { useRouter, useParams } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { Typography, Card, Row, Col, Button, message, Input } from 'antd';
+import { useRouter } from 'next/router';
 import { useSnackbar } from 'notistack';
 import dayjs from 'dayjs';
 import { Api } from '@/core/trpc';
 import { PageLayout } from '@/designSystem/layouts/Page.layout';
 import Image from 'next/image';
 
-const { Title, Text, Paragraph } = Typography;
-const { Option } = Select;
+const { Title, Paragraph, Text } = Typography;
 
-export default function GetWindOfPage() {
+export default function InspirationPage() {
   const router = useRouter();
-  const params = useParams<any>();
-  const { user } = useUserContext();
   const { enqueueSnackbar } = useSnackbar();
 
-  const [searchTerm, setSearchTerm] = useState<string>('');
-  const [category, setCategory] = useState<string | undefined>(undefined);
-  const [author, setAuthor] = useState<string | undefined>(undefined);
-  const [showDescription, setShowDescription] = useState<{ [key: string]: boolean }>({});
+  const [character, setCharacter] = useState({});
+  const [quote, setQuote] = useState({});
+  const [challenge, setChallenge] = useState({});
+  const [story, setStory] = useState({});
+  const [wellnessTip, setWellnessTip] = useState({});
+  const [dailyProgress, setDailyProgress] = useState({});
 
-  const { data: quotes, isLoading: quotesLoading } = Api.quote.findMany.useQuery({
-    where: {
-      AND: [
-        { content: { contains: searchTerm } },
-        category ? { category } : {},
-        author ? { author } : {},
-      ],
-    },
-  });
-
-  const { data: images, isLoading: imagesLoading } = Api.image.findMany.useQuery({});
-  const { data: videos, isLoading: videosLoading } = Api.video.findMany.useQuery({});
-
-  const handleSearch = (value: string) => {
-    setSearchTerm(value);
-  };
-
-  const handleCategoryChange = (value: string) => {
-    setCategory(value);
-  };
-
-  const handleAuthorChange = (value: string) => {
-    setAuthor(value);
-  };
-
-  const toggleDescription = (id: string) => {
-    setShowDescription((prevState) => ({
-      ...prevState,
-      [id]: !prevState[id],
-    }));
-  };
-
-  const saveContent = async (contentType: string, contentId: string) => {
+  // Fetch content
+  const fetchContent = async () => {
     try {
-      const response = await Api.savedContent.create.mutateAsync({
-        data: {
-          contentType,
-          contentId,
-          userId: user?.id,
-        },
+      const [charData, quoteData, challengeData, storyData, wellnessData] = await Promise.all([
+        Api.character.findUnique.useQuery({ id: 1 }), // Mocking the first character of the day
+        Api.quote.findUnique.useQuery({ id: 1 }),
+        Api.challenge.findUnique.useQuery({ id: 1 }),
+        Api.story.findUnique.useQuery({ id: 1 }),
+        Api.wellness.findUnique.useQuery({ id: 1 }),
+      ]);
+
+      setCharacter(charData.data);
+      setQuote(quoteData.data);
+      setChallenge(challengeData.data);
+      setStory(storyData.data);
+      setWellnessTip(wellnessData.data);
+    } catch (error) {
+      message.error('Failed to load content.');
+    }
+  };
+
+  const saveContent = async (type, contentId) => {
+    try {
+      await Api.savedContent.create.mutateAsync({
+        data: { type, contentId },
       });
       enqueueSnackbar('Content saved successfully!', { variant: 'success' });
     } catch (error) {
@@ -72,201 +54,110 @@ export default function GetWindOfPage() {
     }
   };
 
+  useEffect(() => {
+    fetchContent();
+  }, []);
+
   return (
     <PageLayout layout="narrow">
-      <Title level={2}>Inspirational Quotes</Title>
-      <Paragraph>Browse through various inspirational quotes, images, and videos.</Paragraph>
+      {/* Today's Inspiration Header */}
+      <Title level={2} style={{ textAlign: 'center', marginBottom: 16 }}>
+        Today's Inspiration
+      </Title>
+      <Paragraph style={{ textAlign: 'center' }}>{dayjs().format('MMMM D, YYYY')}</Paragraph>
 
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={8}>
-          <Input
-            placeholder="Search quotes"
-            prefix={<SearchOutlined />}
-            value={searchTerm}
-            onChange={(e) => handleSearch(e.target.value)}
-          />
+      {/* Character of the Day */}
+      <Card style={{ marginBottom: 24, padding: 16 }}>
+        <Row>
+          <Col span={8}>
+            <Image src={character?.imageUrl} alt={character?.name} width={200} height={200} />
+          </Col>
+          <Col span={16}>
+            <Title level={4}>{character?.name}</Title>
+            <Paragraph>{character?.description}</Paragraph>
+            <Button onClick={() => saveContent('character', character?.id)}>Save</Button>
+            <Button style={{ marginLeft: 8 }} onClick={() => router.push(`/characters/${character?.id}`)}>
+              Comment
+            </Button>
+            <Button style={{ marginLeft: 8 }}>Share</Button>
+          </Col>
+        </Row>
+      </Card>
+
+      {/* Secondary Content (Grid of Cards) */}
+      <Row gutter={[16, 16]}>
+        <Col span={12}>
+          <Card title="Quote of the Day">
+            <Text>{quote?.content}</Text>
+            <Paragraph>- {quote?.author}</Paragraph>
+          </Card>
         </Col>
-        <Col span={8}>
-          <Select
-            placeholder="Filter by category"
-            style={{ width: '100%' }}
-            onChange={handleCategoryChange}
-            allowClear
-          >
-            <Option value="Motivation">Motivation</Option>
-            <Option value="Life">Life</Option>
-            <Option value="Success">Success</Option>
-          </Select>
+        <Col span={12}>
+          <Card title="Daily Challenge">
+            <Text>{challenge?.text}</Text>
+          </Card>
         </Col>
-        <Col span={8}>
-          <Input
-            placeholder="Filter by author"
-            value={author}
-            onChange={(e) => handleAuthorChange(e.target.value)}
-          />
+        <Col span={12}>
+          <Card title="Inspirational Story">
+            <Text>{story?.brief}</Text>
+            <Button style={{ marginTop: 8 }} onClick={() => router.push(`/stories/${story?.id}`)}>
+              Read More
+            </Button>
+          </Card>
+        </Col>
+        <Col span={12}>
+          <Card title="Wellness Tip">
+            <Text>{wellnessTip?.text}</Text>
+          </Card>
         </Col>
       </Row>
 
-      {quotesLoading || imagesLoading || videosLoading ? (
-        <Spin size="large" />
-      ) : (
-        <div style={{ display: 'flex', overflowX: 'scroll' }}>
-          {quotes?.map((quote) => (
-            <Card key={quote.id} style={{ minWidth: 300, marginRight: 16 }}>
-              <Text>{quote.content}</Text>
-              <Paragraph>- {quote.author}</Paragraph>
-              <Text type="secondary">{dayjs(quote.datePosted).format('MMMM D, YYYY')}</Text>
-              <Button onClick={() => saveContent('quote', quote.id)}>Save</Button>
-            </Card>
-          ))}
-          {images?.map((image) => (
-            <Card
-              key={image.id}
-              style={{ minWidth: 300, marginRight: 16, position: 'relative' }}
-              cover={<Image alt={image.title} src={image.url} style={{ width: '100%' }} />}
-            >
-              <div
-                style={{
-                  position: 'absolute',
-                  bottom: 0,
-                  background: 'rgba(0, 0, 0, 0.5)',
-                  width: '100%',
-                  color: 'white',
-                  padding: 8,
-                }}
-              >
-                <Title
-                  level={4}
-                  style={{
-                    color: 'white',
-                    textShadow: '2px 2px 4px rgba(0, 0, 0, 0.6)',
-                    marginBottom: 0,
-                    textAlign: 'left',
-                  }}
-                >
-                  {image.title}
-                </Title>
-                <div
-                  style={{
-                    background: 'linear-gradient(transparent, rgba(0, 0, 0, 0.7))',
-                    position: 'absolute',
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    height: '50px',
-                    zIndex: 1,
-                  }}
-                />
-                <Paragraph
-                  style={{
-                    color: 'white',
-                    marginTop: 20,
-                    display: showDescription[image.id] ? 'block' : 'none',
-                    zIndex: 2,
-                    position: 'relative',
-                  }}
-                >
-                  {image.description}
-                </Paragraph>
-                <a
-                  style={{
-                    color: 'white',
-                    marginTop: 10,
-                    cursor: 'pointer',
-                    zIndex: 2,
-                    position: 'relative',
-                    display: 'inline-block',
-                  }}
-                  onClick={() => toggleDescription(image.id)}
-                >
-                  {showDescription[image.id] ? 'Read Less' : 'Read More'}
-                </a>
-              </div>
-              <Button onClick={() => saveContent('image', image.id)}>Save</Button>
-            </Card>
-          ))}
-          {videos?.map((video) => (
-            <Card
-              key={video.id}
-              style={{
-                minWidth: 300,
-                marginRight: 16,
-                position: 'relative',
-              }}
-            >
-              <div
-                style={{
-                  position: 'relative',
-                  paddingBottom: '125%', // 4:5 aspect ratio
-                  height: 0,
-                }}
-              >
-                <video
-                  src={video.url}
-                  autoPlay
-                  loop
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
-                  }}
-                />
-                <div
-                  style={{
-                    position: 'absolute',
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    background: 'linear-gradient(transparent, rgba(0, 0, 0, 0.7))',
-                    padding: '10px 20px',
-                    zIndex: 1,
-                  }}
-                >
-                  <Title
-                    level={2}
-                    style={{
-                      color: 'white',
-                      textShadow: '2px 2px 4px rgba(0, 0, 0, 0.6)',
-                      marginBottom: 0,
-                      textAlign: 'left',
-                    }}
-                  >
-                    {video.title}
-                  </Title>
-                </div>
-              </div>
-              <Paragraph
-                style={{
-                  color: 'white',
-                  marginTop: 20,
-                  display: showDescription[video.id] ? 'block' : 'none',
-                  zIndex: 2,
-                  position: 'relative',
-                }}
-              >
-                {video.description}
-              </Paragraph>
-              <a
-                style={{
-                  color: 'white',
-                  marginTop: 10,
-                  cursor: 'pointer',
-                  zIndex: 2,
-                  position: 'relative',
-                  display: 'inline-block',
-                }}
-                onClick={() => toggleDescription(video.id)}
-              >
-                {showDescription[video.id] ? 'Read Less' : 'Read More'}
-              </a>
-              <Button onClick={() => saveContent('video', video.id)}>Save</Button>
-            </Card>
-          ))}
-        </div>
-      )}
+      {/* Sidebar Section: User Contributions & Daily Progress Tracker */}
+      <Row gutter={[16, 16]} style={{ marginTop: 24 }}>
+        <Col span={8}>
+          <Card title="User Contributions" style={{ height: '100%' }}>
+            <Text>Submit your daily stories or quotes here.</Text>
+            <Input.TextArea placeholder="Write your contribution..." rows={4} />
+            <Button type="primary" style={{ marginTop: 8 }}>Submit</Button>
+          </Card>
+        </Col>
+        <Col span={16}>
+          <Card title="Daily Progress Tracker">
+            <Paragraph>Track your progress and goals for today.</Paragraph>
+            <Paragraph>
+              <strong>Progress:</strong> {dailyProgress?.completed || 0}/{dailyProgress?.total || 0} tasks completed
+            </Paragraph>
+            <Button type="primary" onClick={() => router.push('/progress')}>View Full Tracker</Button>
+            <Paragraph style={{ marginTop: 16 }}>
+              Keep up the good work! Your consistent efforts will help you reach your goals.
+            </Paragraph>
+          </Card>
+        </Col>
+      </Row>
+
+      {/* Footer: Navigation Links and Call to Action */}
+      <Row justify="center" style={{ marginTop: 40 }}>
+        <Col span={24} style={{ textAlign: 'center' }}>
+          <Button type="primary" onClick={() => router.push('/explore')}>Explore More Content</Button>
+          <Paragraph style={{ marginTop: 16 }}>Stay motivated and inspired every day with new challenges and stories!</Paragraph>
+        </Col>
+      </Row>
+
+      {/* Footer: Social Media Links */}
+      <Row justify="center" style={{ marginTop: 40 }}>
+        <Col span={24} style={{ textAlign: 'center' }}>
+          <Button onClick={() => router.push('/contact')} type="link">Contact Us</Button>
+          <Button onClick={() => window.open('https://facebook.com', '_blank')} type="link" style={{ marginLeft: 8 }}>
+            Facebook
+          </Button>
+          <Button onClick={() => window.open('https://twitter.com', '_blank')} type="link" style={{ marginLeft: 8 }}>
+            Twitter
+          </Button>
+          <Button onClick={() => window.open('https://instagram.com', '_blank')} type="link" style={{ marginLeft: 8 }}>
+            Instagram
+          </Button>
+        </Col>
+      </Row>
     </PageLayout>
   );
 }
